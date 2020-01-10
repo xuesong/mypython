@@ -7,6 +7,8 @@ import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import matplotlib.animation as animation
+
 
 def fileparse(file1):
     labels = ['x','y','z','timestamp']
@@ -59,7 +61,7 @@ def fileparsepose(file1):
         qw = np.array(qw_list)
  
         x_list = np.arctan2(2*(qy*qz+qw*qx),qw*qw-qx*qx-qy*qy+qz*qz)*180/np.pi
-        y_list = np.arcsin(-2*(qx*qz-qw*qy))*180/np.pi
+        y_list = np.arcsin(2*(qw*qy-qx*qz))*180/np.pi
         z_list = np.arctan2(2*(qx*qy+qw*qz),qw*qw+qx*qx-qy*qy-qz*qz)*180/np.pi
         
         df = pd.DataFrame({'x':x_list, 'y':y_list, 'z':z_list, 'timestamp':timestamp})
@@ -84,7 +86,7 @@ def plotgraphs_data(title, x, y, z,ts):
     #Plotting the graph
     plt.title(title)
     plt.xlabel("Time")
-# https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot	
+# https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot 
 # https://blog.csdn.net/xiaotao_1/article/details/79100163
 #    plt.plot(ts,x,'r,', label="x-axis")
 #    plt.plot(ts,y,'g,', label="y-axis")
@@ -133,6 +135,20 @@ def plotgraphs_data(title, x, y, z,ts):
 
     return 0
 
+def plotgraphs_data_2d(title, x, y):
+    #Plotting the graph
+    plt.title(title)
+
+    plt.plot(x,y)
+
+
+    plt.legend()
+    plt.draw()
+    plt.savefig(title+".png")
+    plt.clf()
+    return 0
+
+
 def plotgraphs_datapose(title, x, y, z,ts):
     #Plotting the graph
     plt.title(title)
@@ -167,6 +183,30 @@ def plotgraphs_datapose(title, x, y, z,ts):
 
     return 0
 
+xxd,yyd = [],[]
+
+def init(): 
+    # creating an empty plot/frame 
+    line.set_data([], []) 
+    return line,
+
+xsd,ysd = [],[]
+def ghostImage(x,y):
+    xsd.append(x)
+    ysd.append(y)
+    if len(xsd)>60:
+        del xsd[0]
+        del ysd[0]
+    return xsd,ysd
+    
+def animate(i): 
+    print "i is ", i
+    x = xxd[i*50]
+    y = yyd[i*50]
+    # appending new points to x, y axes points list 
+    line.set_data(ghostImage(x,y)) 
+    return line, 
+
     
 if len(sys.argv) <2:
     print "Usage: python ps.py <directory location where all sensor data accelerometer.xml, gyroscope.xml and headTrackingPose.xml exist>"
@@ -190,7 +230,17 @@ else:
             plotgraphs_data("uncal Gyroscope data", xdata, ydata, zdata,timestamp)
             print "\n"
 
-    
-
-    
+        if fname == "headTrackingPose.xml":
+            fr, xxd, yyd, zdata, timestamp = fileparsepose(fname)
+            #plotgraphs_data_2d("angle",xdata,ydata)
+            print "\n"
+            plt.style.use('dark_background')
+            fig = plt.figure() 
+            ax = plt.axes(xlim=(-80, 10), ylim=(-50, 10)) 
+            line, = ax.plot([], [], lw=2)
+            flen=len(xxd)/50
+            anim = animation.FuncAnimation(fig, animate, init_func=init, frames=flen, interval=20, blit=True) 
+            # save the animation as gif file 
+            anim.save('figure.gif',writer='imagemagick')
+        
     
