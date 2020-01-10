@@ -84,9 +84,15 @@ def plotgraphs_data(title, x, y, z,ts):
     #Plotting the graph
     plt.title(title)
     plt.xlabel("Time")
-    plt.plot(ts,x,'r,', label="x-axis")
-    plt.plot(ts,y,'g,', label="y-axis")
-    plt.plot(ts,z,'b,', label="z-axis")
+# https://matplotlib.org/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot	
+# https://blog.csdn.net/xiaotao_1/article/details/79100163
+#    plt.plot(ts,x,'r,', label="x-axis")
+#    plt.plot(ts,y,'g,', label="y-axis")
+#    plt.plot(ts,z,'b,', label="z-axis")
+    plt.plot(ts,x,'r*', label="x-axis")
+    plt.plot(ts,y,'gd', label="y-axis")
+    plt.plot(ts,z,'bx', label="z-axis")
+
     plt.legend()
     plt.draw()
     plt.savefig(title+".png")
